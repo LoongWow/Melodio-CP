@@ -28,7 +28,8 @@ Page({
     currentSong: null,
     currentGenre: 'default',  // 当前风格
     genreCache: {},           // 本地缓存 {songId: genre}
-    genreTransitioning: false // 切换动画状态
+    genreTransitioning: false ,// 切换动画状态
+    containerClass: 'container genre-default' 
   },
 
   canvas: null,
@@ -644,31 +645,28 @@ Page({
    */
   switchGenre: function(genre) {
     if (!genre || genre === this.data.currentGenre) {
-      return; // 避免重复切换
+      return; 
     }
 
     console.log('切换风格:', this.data.currentGenre, '->', genre);
 
-    // 获取容器元素
     const query = wx.createSelectorQuery();
     query.select('.container').boundingClientRect();
     query.exec((res) => {
       if (!res || !res[0]) return;
 
-      // 移除旧的风格类
-      const oldClass = 'genre-' + this.data.currentGenre;
-      const newClass = 'genre-' + genre;
-
-      // 更新状态
+      // 更新状态时，同步更新 containerClass 字符串
       this.setData({
         currentGenre: genre,
-        genreTransitioning: true
+        genreTransitioning: true,
+        containerClass: `container genre-${genre} genre-transitioning` // 新增
       });
 
-      // 通过动态修改 class 实现（微信小程序需要通过 setData）
-      // 注意：这里需要配合 wxml 中的 class 绑定
       setTimeout(() => {
-        this.setData({ genreTransitioning: false });
+        this.setData({ 
+          genreTransitioning: false,
+          containerClass: `container genre-${genre}` // 新增
+        });
       }, 1500);
     });
   },

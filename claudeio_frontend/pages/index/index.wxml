@@ -1,6 +1,6 @@
 <view class="page-wrapper {{theme}}">
 <view class="glow-wrapper">
-<view class="container genre-{{currentGenre}} {{genreTransitioning ? 'genre-transitioning' : ''}}">
+  <view class="{{containerClass}}">
   <view class="content">
     <!-- Header -->
     <view class="header">
