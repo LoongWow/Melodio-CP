@@ -9,7 +9,9 @@
         <text class="logo-text">Melodio</text>
       </view>
       <view class="header-right">
-        <text class="login-btn" bindtap="goToLogin">LOGIN</text>
+
+        <text class="login-btn" bindtap="goToLogin">{{isLoggedIn ? 'My' : 'LOGIN'}}</text>
+
         <view class="theme-toggle">
           <view class="toggle-btn {{theme === 'dark' ? 'active' : ''}}" data-theme="dark" bindtap="toggleTheme">DARK</view>
           <view class="toggle-btn {{theme === 'light' ? 'active' : ''}}" data-theme="light" bindtap="toggleTheme">LIGHT</view>

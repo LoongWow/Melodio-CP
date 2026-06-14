@@ -132,6 +132,20 @@ Page({
     });
   },
 
+// 1. 新增 onShow 生命周期
+onShow: function () {
+  const userId = wx.getStorageSync('music_userId');
+  // 若缓存有 userId 且当前未登录，说明刚从登录页返回
+  if (userId && !this.data.isLoggedIn) {
+    this.setData({ isLoggedIn: true });
+    this.loadGreeting(userId); // 重新加载队列和问候
+  } 
+  // 若缓存已被清空（如已退出登录），重置状态
+  else if (!userId && this.data.isLoggedIn) {
+    this.setData({ isLoggedIn: false });
+  }
+},
+
   loadGreeting: function(userId) {
     wx.request({
       url: `${getApp().globalData.apiBase}/greeting`,
@@ -613,7 +627,14 @@ Page({
   tapQueueItem: function (e) { const index = e.currentTarget.dataset.index; const { queue, currentTrackIndex } = this.data; if (index === currentTrackIndex) return; const above = queue.slice(0, index); const clicked = queue[index]; const below = queue.slice(index + 1); const newQueue = [clicked, ...below, ...above]; this.audio.stop(); this.audio.src = ''; this.setData({ queue: newQueue, currentTrackIndex: 0, currentTrack: clicked.title + ' - ' + clicked.artist, showPlayerView: true }, () => { this.loadAndPlayTrack(clicked, 0); }); },
   deleteQueueItem: function (e) { const index = e.currentTarget.dataset.index; const { queue, currentTrackIndex } = this.data; const newQueue = queue.filter((_, i) => i !== index); const newIndex = index < currentTrackIndex ? currentTrackIndex - 1 : currentTrackIndex; this.setData({ queue: newQueue, currentTrackIndex: Math.min(newIndex, newQueue.length - 1) }); },
   toggleQueue: function () { const next = !this.data.showQueue; this.setData({ showQueue: next, queueHeight: next ? 120 : 0 }); },
-  goToLogin: function () { wx.navigateTo({ url: '/pages/login/login' }); },
+
+  goToLogin: function () { 
+    if (this.data.isLoggedIn) {
+      wx.navigateTo({ url: '/pages/my/my' });
+    } else {
+      wx.navigateTo({ url: '/pages/login/login' }); 
+    }
+  },
   toggleTheme: function (e) { const targetTheme = e.currentTarget.dataset.theme; if (targetTheme && targetTheme !== this.data.theme) this.setData({ theme: targetTheme }); },
   updateTime: function () { const now = new Date(); const hours = now.getHours().toString().padStart(2, '0'); const minutes = now.getMinutes().toString().padStart(2, '0'); const timeString = hours + minutes; const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; const dayOfWeek = days[now.getDay()]; const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']; const day = now.getDate().toString().padStart(2, '0'); const month = months[now.getMonth()]; const year = now.getFullYear(); const fullDate = `${day} ${month} ${year}`; if (this.data.timeDigits.join('') !== timeString || this.data.fullDate !== fullDate) this.setData({ timeDigits: timeString.split(''), dayOfWeek, fullDate }); },
   startClockAnimation: function () { const render = () => { this.drawPixelClock(); this.animationId = this.canvas.requestAnimationFrame(render); }; render(); },

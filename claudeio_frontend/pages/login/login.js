@@ -110,7 +110,7 @@ Page({
           })
 
           setTimeout(() => {
-            wx.navigateTo({ url: '/pages/index/index' })
+            wx.navigateBack({ delta: 1 })
           }, 500)
         } else {
           wx.showModal({
@@ -424,6 +424,7 @@ Page({
         wx.setStorageSync('netease_cookie', cookie)
         wx.setStorageSync('netease_cookie_timestamp', Date.now())
         wx.setStorageSync('user_id', userId)
+        wx.setStorageSync('music_userId', userId)
         wx.setStorageSync('user_nickname', nickname)
 
         // 更新全局状态
@@ -441,9 +442,7 @@ Page({
 
         // 1秒后跳转到首页
         setTimeout(() => {
-          wx.redirectTo({
-            url: '/pages/index/index'
-          })
+          wx.navigateBack({ delta: 1 })
         }, 1000)
 
       } else {
