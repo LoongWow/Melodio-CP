@@ -172,25 +172,56 @@
     <!-- ====== LYRICS DRAWER ====== -->
     <view class="drawer-mask {{showPlayerView ? 'open' : ''}}" bindtap="closePlayerView"></view>
     <view class="lyrics-drawer {{showPlayerView ? 'open' : ''}}" catchtap>
+      
       <view class="drawer-header">
+        <view class="player-tabs">
+          <text class="tab {{playerTab === 0 ? 'active' : ''}}" bindtap="switchPlayerTab" data-tab="0">LYRICS</text>
+          <text class="tab {{playerTab === 1 ? 'active' : ''}}" bindtap="switchPlayerTab" data-tab="1">HISTORY</text>
+        </view>
         <view class="drawer-close-btn" bindtap="closePlayerView">▼</view>
       </view>
-      <scroll-view class="lyrics-view" scroll-y scroll-into-view="lyric-{{currentLyricIndex}}" scroll-with-animation>
-        <view
-          wx:for="{{lyricLines}}"
-          wx:key="time"
-          id="lyric-{{index}}"
-          class="lyric-line {{index < currentLyricIndex ? 'past' : (index === currentLyricIndex ? 'current' : 'future')}}"
-          data-time="{{item.time}}"
-          data-index="{{index}}"
-          bindtap="seekToLyric"
-        >
-          <text class="lyric-text">{{item.text}}</text>
-        </view>
-        <view wx:if="{{!lyricLines.length}}" class="lyric-line future">
-          <text class="lyric-text">暂无歌词</text>
-        </view>
-      </scroll-view>
+
+      <swiper class="player-swiper" current="{{playerTab}}" duration="{{swiperDuration}}" bindchange="onPlayerSwiperChange">
+        
+        <swiper-item>
+          <scroll-view class="lyrics-view" scroll-y scroll-into-view="lyric-{{currentLyricIndex}}" scroll-with-animation>
+            <view
+              wx:for="{{lyricLines}}"
+              wx:key="time"
+              id="lyric-{{index}}"
+              class="lyric-line {{index < currentLyricIndex ? 'past' : (index === currentLyricIndex ? 'current' : 'future')}}"
+              data-time="{{item.time}}"
+              data-index="{{index}}"
+              bindtap="seekToLyric"
+            >
+              <text class="lyric-text">{{item.text}}</text>
+            </view>
+            <view wx:if="{{!lyricLines.length}}" class="lyric-line future">
+              <text class="lyric-text">暂无歌词</text>
+            </view>
+          </scroll-view>
+        </swiper-item>
+
+        <swiper-item>
+          <scroll-view class="history-view" scroll-y>
+            <view wx:if="{{playHistory.length === 0}}" class="empty-hint">暂无播放记录</view>
+            <view 
+              class="queue-item" 
+              wx:for="{{playHistory}}" 
+              wx:key="id" 
+              bindtap="playHistoryItem" 
+              data-item="{{item}}"
+            >
+              <view class="queue-left">
+                <text class="queue-index">{{index + 1}}</text>
+                <text class="queue-title">{{item.songName}}</text>
+              </view>
+              <text class="queue-artist">{{item.artist}}</text>
+            </view>
+          </scroll-view>
+        </swiper-item>
+
+      </swiper>
     </view>
 
     

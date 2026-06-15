@@ -853,8 +853,7 @@ input {
 }
 
 .lyrics-view {
-  flex: 1;
-  height: 0;
+  height: 100%; /* <-- 把 0 改成 100% */
   position: relative;
   z-index: 1;
 }
@@ -863,6 +862,8 @@ input {
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
+  align-items: center;    /* 确保 Flex 子项水平居中 */
+  text-align: center;     /* 确保多行文本内容居中 */
 }
 
 .lyric-speaker {
@@ -1143,3 +1144,82 @@ input {
   transition: margin-top 0.1s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+
+/* ==================== 顶部 Tab 样式重构 ==================== */
+.drawer-header {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  padding-bottom: 15px;
+  position: relative;
+  z-index: 1;
+}
+
+.player-tabs {
+  display: flex;
+  gap: 16px;
+}
+
+.player-tabs .tab {
+  font-size: 10px;                  /* 保持与原项目 ON AIR / QUEUE 一致的微型字体 */
+  font-family: monospace;           /* 采用原项目统一的等宽计算机字体 */
+  letter-spacing: 1px;              /* 注入原项目特有的字间距拉伸感 */
+  padding: 2px 0;
+  transition: all 0.2s ease;
+  background: transparent;
+  border-bottom: 2px solid transparent; /* 预留底部边框槽位 */
+}
+
+/* ------ 暗黑模式 (Dark Theme) 状态 ------ */
+.page-wrapper.dark .player-tabs .tab {
+  color: #555;                      /* 未激活时暗显，与原播放状态 PAUSED 颜色一致 */
+}
+
+.page-wrapper.dark .player-tabs .tab.active {
+  color: #00bcd4;                   /* 激活时高亮为项目核心青色 */
+  border-bottom-color: #00bcd4;     /* 底部青色高亮条 */
+  font-weight: bold;
+  filter: drop-shadow(0 0 4px rgba(0, 188, 212, 0.8)); /* 融入原项目 Logo 的发光特效 */
+}
+
+/* ------ 明亮模式 (Light Theme) 状态 ------ */
+.page-wrapper.light .player-tabs .tab {
+  color: #888;
+}
+
+.page-wrapper.light .player-tabs .tab.active {
+  color: #00bcd4;
+  border-bottom-color: #00bcd4;
+  font-weight: bold;
+}
+
+
+
+.player-swiper {
+  flex: 1;
+  height: 100%;
+  width: 100%;
+}
+
+.history-view {
+  height: 100%;
+  padding-top: 10px;
+  box-sizing: border-box; /* 防止 padding 撑破容器 */
+}
+
+.empty-hint {
+  text-align: center;
+  color: #888;
+  font-size: 12px;
+  margin-top: 40px;
+}
+
+/* 覆盖 queue-item 原有的 border，适配 drawer 内部 */
+.history-view .queue-item {
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  margin-bottom: 5px;
+}
+
+.page-wrapper.dark .history-view .queue-item {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
