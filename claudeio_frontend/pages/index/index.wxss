@@ -123,10 +123,11 @@
   letter-spacing: 2px;
   font-family: monospace;
   font-weight: bold;
-  background-image:
-    radial-gradient(circle at center, #fff 48%, transparent 48%);
-  background-size: 5px 5px;
+
+  background-image: radial-gradient(circle at center, #fff 48%, transparent 48%);
+  background-size: 4px 4px; 
   background-position: 0 0;
+
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
@@ -558,19 +559,27 @@
   margin-left: 10px;
 }
 
+/* 气泡容器 */
 .msg-content {
-  background-color: rgba(30, 35, 50, 0.9); /* 提升消息背景亮度 */
+  background-color: rgba(30, 35, 50, 0.9);
   border: 1px solid rgba(255,255,255,0.1);
-  padding: 10px;
-  border-radius: 6px;
+  /* 核心修复1：使用非对称 Padding。减少顶部内边距，增加底部内边距，手动抵消字体基线下沉导致的视觉偏差 */
+  padding: 6px 12px 10px 12px; 
+  border-radius: 8px; /* 稍微调大圆角，配合文字居中后的视觉更自然 */
   flex: 1;
   min-width: 0;
+  /* 核心修复2：开启 Flex 弹性盒，强行压制内部节点的垂直居中 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  word-break: break-word; /* 确保遇到长英文字符串自动换行，不撑破气泡 */
 }
 
+/* 气泡文字 */
 .msg-text {
-  color: #e8eaed; /* 提升文字亮度 */
-  font-size: 11px;
-  line-height: 1.5;
+  color: #e8eaed; 
+  font-size: 11px; 
+  line-height: 1.5; 
 }
 
 .msg-actions {
@@ -1058,4 +1067,46 @@ input {
 .container.genre-transitioning::after {
   animation: rotateGlow var(--genre-animation-speed) linear infinite,
              genreTransition 1.5s ease-in-out;
+}
+
+/* ==================== AI 等待动画气泡 ==================== */
+.thinking-content {
+  padding: 12px 16px;
+  min-width: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.typing-dot {
+  width: 5px;
+  height: 5px;
+  background-color: #00bcd4; /* 复用你的主色调 */
+  border-radius: 50%;
+  animation: typingPulse 1.4s infinite ease-in-out both;
+}
+
+/* 通过延迟让点产生连续波浪跳动感 */
+.typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typingPulse {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

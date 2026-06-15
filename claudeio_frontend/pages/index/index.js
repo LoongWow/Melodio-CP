@@ -24,6 +24,7 @@ Page({
     volume: 80,
     chatInput: '',
     messages: [],
+    isAiThinking: false, // 控制等待气泡显示的标志位
     playStartTime: null,
     currentSong: null,
     currentGenre: 'default',  // 当前风格
@@ -208,13 +209,24 @@ onShow: function () {
       return;
     }
     const userMsg = { id: Date.now(), role: 'user', author: 'YOU', content: message };
-    this.setData({ messages: [...this.data.messages, userMsg], chatInput: '' });
+    // 1. 发送前：追加用户消息，开启 AI 思考状态并滚动到底部
+    this.setData({ 
+      messages: [...this.data.messages, userMsg], 
+      chatInput: '',
+      isAiThinking: true 
+    }, () => {
+      this.scrollChatToBottom();
+    });
+
     wx.request({
       url: `${getApp().globalData.apiBase}/chat`,
       method: 'POST',
       header: { 'Content-Type': 'application/json' },
       data: { message, userId: Number(userId) },
       success: (res) => {
+        // 2. 请求返回：首要任务是关闭 AI 思考状态
+        this.setData({ isAiThinking: false });
+        
         const reply = res.data?.reply || '';
         const songs = res.data?.songs || [];
         const songId = res.data?.songId;
@@ -423,11 +435,26 @@ onShow: function () {
           }
         }
       },
-      fail: () => wx.showToast({ title: '对话失败', icon: 'none' })
+      fail: () => {
+        // 3. 请求失败：兜底关闭状态
+        this.setData({ isAiThinking: false });
+        wx.showToast({ title: '对话失败', icon: 'none' });
+      }
     });
+
+
   },
 
+// 控制聊天视图滚动逻辑
   scrollChatToBottom: function () {
+    // 如果处于等待状态，优先滚动到等待气泡
+    if (this.data.isAiThinking) {
+      setTimeout(() => {
+        this.setData({ chatScrollIntoView: 'msg-thinking' });
+      }, 50);
+      return;
+    }
+    
     const messages = this.data.messages;
     if (messages.length === 0) return;
     const lastMsg = messages[messages.length - 1];
@@ -624,6 +651,20 @@ onShow: function () {
   onUnload: function () { if (this.data.timer) clearInterval(this.data.timer); if (this.animationId) this.canvas.cancelAnimationFrame(this.animationId); if (this.audio) this.audio.destroy(); },
   togglePlay: function () { const { queue, currentTrackIndex, isPlaying } = this.data; if (!queue.length) return; if (isPlaying) { this.audio.pause(); this.setData({ showPlayerView: false }); return; } if (!this.audio.src) { const track = queue[currentTrackIndex]; this.loadAndPlayTrack(track, currentTrackIndex); } else { this.audio.play(); } this.setData({ showPlayerView: true }); },
   closePlayerView: function () { this.setData({ showPlayerView: false }); },
+
+  // 打开歌词/播放器抽屉的方法
+  openPlayerView: function () {
+    // 判断当前有正在播放的歌曲，或播放队列里有歌，才允许打开抽屉
+    if (this.data.currentTrack || (this.data.queue && this.data.queue.length > 0)) {
+      this.setData({ showPlayerView: true });
+    } else {
+      wx.showToast({
+        title: '当前没有正在播放的歌曲',
+        icon: 'none'
+      });
+    }
+  },
+
   tapQueueItem: function (e) { const index = e.currentTarget.dataset.index; const { queue, currentTrackIndex } = this.data; if (index === currentTrackIndex) return; const above = queue.slice(0, index); const clicked = queue[index]; const below = queue.slice(index + 1); const newQueue = [clicked, ...below, ...above]; this.audio.stop(); this.audio.src = ''; this.setData({ queue: newQueue, currentTrackIndex: 0, currentTrack: clicked.title + ' - ' + clicked.artist, showPlayerView: true }, () => { this.loadAndPlayTrack(clicked, 0); }); },
   deleteQueueItem: function (e) { const index = e.currentTarget.dataset.index; const { queue, currentTrackIndex } = this.data; const newQueue = queue.filter((_, i) => i !== index); const newIndex = index < currentTrackIndex ? currentTrackIndex - 1 : currentTrackIndex; this.setData({ queue: newQueue, currentTrackIndex: Math.min(newIndex, newQueue.length - 1) }); },
   toggleQueue: function () { const next = !this.data.showQueue; this.setData({ showQueue: next, queueHeight: next ? 120 : 0 }); },

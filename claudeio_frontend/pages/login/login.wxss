@@ -200,8 +200,13 @@
 }
 
 .sys-btn.secondary {
-  border: 1px dashed rgba(255,255,255,0.1);
+  border: none; /* 移除虚线边框 */
+  background: transparent; /* 确保背景完全透明 */
   color: #888;
+}
+
+.sys-btn.secondary:active {
+  opacity: 0.6; /* 用户点击时文字变暗，提示触发了点击事件 */
 }
 
 .sys-btn.small {

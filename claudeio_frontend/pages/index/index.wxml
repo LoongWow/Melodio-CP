@@ -41,12 +41,14 @@
           <view class="bar bar3"></view>
           <view class="bar bar4"></view>
         </view>
-        <view class="track-details">
+
+        <view class="track-details" bindtap="openPlayerView">
           <view class="marquee-wrap">
             <text class="track-name marquee-text">{{currentTrack}}</text>
           </view>
           <text class="playing-status">{{isPlaying ? 'PLAYING' : 'PAUSED'}}</text>
         </view>
+
         <view class="controls">
           <view class="icon-btn" bindtap="playPrev">|◁</view>
           <view class="icon-btn" bindtap="togglePlay">{{isPlaying ? '||' : '▷'}}</view>
@@ -124,6 +126,21 @@
            <text class="dashed-line">-</text> {{item.content}} <text class="dashed-line">-</text>
         </view>
       </view>
+
+      <view wx:if="{{isAiThinking}}" id="msg-thinking" class="message-group agent-message">
+        <text class="msg-author">CLAUDIO</text>
+        <view class="message">
+          <image class="msg-avatar ai-avatar" src="https://img.yzcdn.cn/vant/cat.jpeg"></image>
+          <view class="msg-content thinking-content">
+            <view class="typing-indicator">
+              <view class="typing-dot"></view>
+              <view class="typing-dot"></view>
+              <view class="typing-dot"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+      
     </scroll-view>
 
     <!-- Input Section -->
